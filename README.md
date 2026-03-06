@@ -47,7 +47,15 @@ Gamified-tracker
 │
 └── README.md
 ```
+## 📸 Project Preview
 
+<p align="center">
+  <img src="assets/screenshots/dashboard.png" width="900">
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/analytics.png" width="900">
+</p>
 ---
 
 ## 🎮 How It Works
