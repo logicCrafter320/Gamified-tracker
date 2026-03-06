@@ -50,11 +50,11 @@ Gamified-tracker
 ## 📸 Project Preview
 
 <p align="center">
-  <img src="assets/screenshots/dashboard.png" width="900">
+  <img src="assets/Screenshot 2026-03-06 112852.png" width="900">
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/analytics.png" width="900">
+  <img src="assets/Screenshot 2026-03-06 112907.png" width="900">
 </p>
 ---
 
