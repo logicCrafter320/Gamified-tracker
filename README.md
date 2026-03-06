@@ -90,19 +90,6 @@ open index.html
 
 ---
 
-## 📸 Preview
-
-Add screenshots of your website here to show the UI.
-
-Example:
-
-```
-/assets/dashboard.png
-/assets/leaderboard.png
-```
-
----
-
 ## 🔮 Future Improvements
 
 * 🎯 Achievement system
