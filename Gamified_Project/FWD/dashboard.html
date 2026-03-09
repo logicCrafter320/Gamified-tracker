@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard – Gamified Learning Tracking System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+         :root {
+            --bg: #f0f2f8;
+            --card: #ffffff;
+            --purple: #6c63ff;
+            --purple-light: #ede9ff;
+            --purple-dark: #4f46e5;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --green: #10b981;
+            --shadow: 0 2px 12px rgba(108, 99, 255, 0.08);
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
+        }
+        
+        .topbar-left h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .topbar-left p {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        
+        .topbar-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn-add {
+            background: var(--purple);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.2s;
+        }
+        
+        .btn-add:hover {
+            background: var(--purple-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-logout {
+            background: none;
+            border: 1.5px solid var(--border);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+        
+        .btn-logout:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+        
+        .main {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 28px 20px;
+        }
+        
+        .level-card {
+            background: linear-gradient(120deg, #ede9ff, #f5f3ff);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            border: 1px solid #ddd6fe;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .level-card::after {
+            content: '';
+            position: absolute;
+            right: -50px;
+            top: -50px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.1), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .level-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .level-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .level-badge {
+            width: 52px;
+            height: 52px;
+            background: var(--purple);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 16px rgba(108, 99, 255, 0.4);
+            flex-shrink: 0;
+        }
+        
+        .level-info h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+        
+        .level-info p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        
+        .level-right {
+            text-align: right;
+        }
+        
+        .level-right span {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        
+        .level-right strong {
+            display: block;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--purple);
+        }
+        
+        .xp-bar-bg {
+            background: #ddd6fe;
+            border-radius: 50px;
+            height: 10px;
+            overflow: hidden;
+        }
+        
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--purple-dark));
+            border-radius: 50px;
+            transition: width 1s ease;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 18px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 28px rgba(108, 99, 255, 0.14);
+        }
+        
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        
+        .ic-gold {
+            background: #fef3c7;
+        }
+        
+        .ic-orange {
+            background: #ffedd5;
+        }
+        
+        .ic-purple {
+            background: var(--purple-light);
+        }
+        
+        .stat-label {
+            font-size: 0.83rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+        
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 20px;
+            align-items: start;
+        }
+        
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .subject-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .session-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .session-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .session-item:first-child {
+            padding-top: 0;
+        }
+        
+        .sess-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--purple-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .sess-info {
+            flex: 1;
+        }
+        
+        .sess-info h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+        
+        .sess-info p {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+        
+        .sess-meta {
+            font-size: 0.74rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+        
+        .xp-pill {
+            background: var(--purple-light);
+            color: var(--purple);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 11px;
+            border-radius: 50px;
+            flex-shrink: 0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: var(--muted);
+        }
+        
+        .empty-state .ei {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            font-size: 0.88rem;
+        }
+        
+        .ach-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .ach-count {
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+        
+        .ach-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        
+        .ach-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .ach-item:hover {
+            border-color: var(--purple);
+        }
+        
+        .ach-item.unlocked {
+            background: #fefce8;
+            border-color: #fde68a;
+        }
+        
+        .ach-icon {
+            font-size: 1.3rem;
+            width: 34px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .ach-icon.locked {
+            filter: grayscale(1);
+            opacity: 0.3;
+        }
+        
+        .ach-info {
+            flex: 1;
+        }
+        
+        .ach-info h4 {
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+        
+        .ach-info p {
+            font-size: 0.74rem;
+            color: var(--muted);
+        }
+        
+        .ach-ok {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--green);
+            margin-top: 2px;
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.38);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-overlay.open {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 22px;
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+            animation: modalIn 0.25s ease;
+        }
+        
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0
+            }
+            to {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
+        
+        .modal h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .fg {
+            margin-bottom: 14px;
+        }
+        
+        .fg label {
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .fg input,
+        .fg select {
+            width: 100%;
+            padding: 10px 13px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: border 0.2s;
+        }
+        
+        .fg input:focus,
+        .fg select:focus {
+            border-color: var(--purple);
+        }
+        
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        
+        .btn-c {
+            flex: 1;
+            padding: 11px;
+            border: 1.5px solid var(--border);
+            background: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-c:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+        
+        .btn-s {
+            flex: 1;
+            padding: 11px;
+            background: var(--purple);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .btn-s:hover {
+            background: var(--purple-dark);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--text);
+            color: white;
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            z-index: 300;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media(max-width:1024px) {
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media(max-width:640px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr
+            }
+            .subject-row {
+                grid-template-columns: 1fr
+            }
+            .topbar {
+                padding: 12px 16px
+            }
+            .main {
+                padding: 16px 12px
+            }
+            .level-card {
+                padding: 20px 16px
+            }
+        }
+        
+        @media(max-width:400px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1>Gamified Learning Tracking System</h1>
+            <p id="user-email">Loading...</p>
+        </div>
+        <div class="topbar-right">
+            <button class="btn-add" onclick="openModal()">&#xFF0B; Add Session</button>
+            <button class="btn-logout" title="Logout" onclick="doLogout()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="level-card">
+            <div class="level-top">
+                <div class="level-left">
+                    <div class="level-badge">&#11088;</div>
+                    <div class="level-info">
+                        <h2 id="level-title">Level 1</h2>
+                        <p id="xp-sub">0 Total XP</p>
+                    </div>
+                </div>
+                <div class="level-right">
+                    <span>Next Level</span>
+                    <strong id="xp-label">0/100 XP</strong>
+                </div>
+            </div>
+            <div class="xp-bar-bg">
+                <div class="xp-bar-fill" id="xp-bar" style="width:0%"></div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon ic-gold">&#127942;</div>
+                <div class="stat-label">Total XP</div>
+                <div class="stat-value" id="s-xp">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon ic-orange">&#128293;</div>
+                <div class="stat-label">Current Streak</div>
+                <div class="stat-value" id="s-streak">0 days</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon ic-purple">&#9889;</div>
+                <div class="stat-label">Longest Streak</div>
+                <div class="stat-value" id="s-longest">0 days</div>
+            </div>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="left-col">
+                <div class="card">
+                    <div class="card-title">Daily XP Progress (Last 30 Days)</div>
+                    <canvas id="lineChart" height="100"></canvas>
+                </div>
+                <div class="subject-row">
+                    <div class="card">
+                        <div class="card-title">Subject Distribution</div>
+                        <canvas id="pieChart" height="170"></canvas>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">XP by Subject</div>
+                        <canvas id="barChart" height="170"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Recent Sessions</div>
+                    <div id="sess-list"></div>
+                </div>
+            </div>
+            <div>
+                <div class="card" style="position:sticky;top:80px;">
+                    <div class="ach-header">
+                        <div class="card-title" style="margin:0">Achievements</div>
+                        <span class="ach-count" id="ach-count">0/10</span>
+                    </div>
+                    <div id="ach-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal">
+            <h2>&#xFF0B; Add Study Session</h2>
+            <div class="fg"><label>Subject</label><input id="i-subj" placeholder="e.g. Physics, Maths..." /></div>
+            <div class="fg"><label>Topic</label><input id="i-topic" placeholder="e.g. Motion, Derivatives..." /></div>
+            <div class="fg"><label>Duration (minutes)</label><input id="i-dur" type="number" min="1" placeholder="e.g. 45" /></div>
+            <div class="fg"><label>Date</label><input id="i-date" type="date" /></div>
+            <div class="modal-btns">
+                <button class="btn-c" onclick="closeModal()">Cancel</button>
+                <button class="btn-s" onclick="saveSession()">Save Session</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) window.location.href = 'login.html';
+
+        function getUsers() {
+            return JSON.parse(localStorage.getItem('users')) || {};
+        }
+
+        function saveUsers(u) {
+            localStorage.setItem('users', JSON.stringify(u));
+        }
+
+        function getUserData() {
+            const users = getUsers();
+            if (!users[currentUser]) {
+                users[currentUser] = freshProfile('');
+                saveUsers(users);
+            }
+            const u = users[currentUser];
+            if (u.xp === undefined) u.xp = u.points || 0;
+            if (!u.sessions) u.sessions = [];
+            if (!u.achievements) u.achievements = defaultAchievements();
+            if (u.streak === undefined) u.streak = 0;
+            if (u.longestStreak === undefined) u.longestStreak = 0;
+            saveUsers(users);
+            return u;
+        }
+
+        function freshProfile(password) {
+            return {
+                password,
+                xp: 0,
+                streak: 0,
+                longestStreak: 0,
+                sessions: [],
+                achievements: defaultAchievements()
+            };
+        }
+
+        function defaultAchievements() {
+            return [{
+                icon: "🎯",
+                name: "First Steps",
+                desc: "Complete your first study session",
+                unlocked: false
+            }, {
+                icon: "📖",
+                name: "Knowledge Seeker",
+                desc: "Reach Level 2",
+                unlocked: false
+            }, {
+                icon: "🦉",
+                name: "Sage",
+                desc: "Reach Level 4",
+                unlocked: false
+            }, {
+                icon: "🔥",
+                name: "On Fire",
+                desc: "Maintain a 7-day streak",
+                unlocked: false
+            }, {
+                icon: "📚",
+                name: "Dedicated Learner",
+                desc: "Complete 10 study sessions",
+                unlocked: false
+            }, {
+                icon: "⏱️",
+                name: "Marathon Runner",
+                desc: "Study for 30+ minutes in a single session",
+                unlocked: false
+            }, {
+                icon: "💧",
+                name: "Unstoppable",
+                desc: "Maintain a 30-day streak",
+                unlocked: false
+            }, {
+                icon: "🧑‍🎓",
+                name: "Study Master",
+                desc: "Complete 50 study sessions",
+                unlocked: false
+            }, {
+                icon: "🌟",
+                name: "XP Hunter",
+                desc: "Earn 500 XP total",
+                unlocked: false
+            }, {
+                icon: "🚀",
+                name: "Level Up!",
+                desc: "Reach Level 5",
+                unlocked: false
+            }];
+        }
+
+        function xpFor(d) {
+            return Math.max(5, Math.round(d / 3));
+        }
+
+        function getLevel(xp) {
+            return Math.floor(xp / 100) + 1;
+        }
+
+        function render() {
+            const u = getUserData();
+            const xp = u.xp || 0;
+            const lvl = getLevel(xp);
+            const prog = xp % 100;
+            document.getElementById('user-email').textContent = currentUser;
+            document.getElementById('level-title').textContent = `Level ${lvl}`;
+            document.getElementById('xp-sub').textContent = `${xp} Total XP`;
+            document.getElementById('xp-label').textContent = `${prog}/100 XP`;
+            document.getElementById('xp-bar').style.width = `${prog}%`;
+            document.getElementById('s-xp').textContent = xp;
+            document.getElementById('s-streak').textContent = `${u.streak || 0} days`;
+            document.getElementById('s-longest').textContent = `${u.longestStreak || 0} days`;
+            renderSessions(u.sessions || []);
+            renderAchievements(u.achievements);
+            renderCharts(u.sessions || []);
+        }
+
+        function renderSessions(sessions) {
+            const el = document.getElementById('sess-list');
+            if (!sessions.length) {
+                el.innerHTML = `<div class="empty-state"><div class="ei">📭</div><p>No sessions yet.<br>Click <strong>＋ Add Session</strong> to get started!</p></div>`;
+                return;
+            }
+            el.innerHTML = sessions.slice(0, 5).map(s => `
+                <div class="session-item">
+                    <div class="sess-icon">📘</div>
+                    <div class="sess-info">
+                        <h4>${s.subject}</h4>
+                        <p>${s.topic}</p>
+                        <div class="sess-meta">⏱ ${s.duration} min &nbsp;•&nbsp; ${s.date}</div>
+                    </div>
+                    <div class="xp-pill">+${xpFor(s.duration)} XP</div>
+                </div>`).join('');
+        }
+
+        function renderAchievements(achievements) {
+            const u = achievements.filter(a => a.unlocked).length;
+            document.getElementById('ach-count').textContent = `${u}/${achievements.length}`;
+            document.getElementById('ach-list').innerHTML = achievements.map(a => `
+                <div class="ach-item ${a.unlocked ? 'unlocked' : ''}">
+                    <div class="ach-icon ${a.unlocked ? '' : 'locked'}">${a.icon}</div>
+                    <div class="ach-info">
+                        <h4>${a.name}</h4>
+                        <p>${a.desc}</p>
+                        ${a.unlocked ? '<div class="ach-ok">✓ Unlocked</div>' : ''}
+                    </div>
+                </div>`).join('');
+        }
+
+        let lc, pc, bc;
+
+        function renderCharts(sessions) {
+            const subjMap = {};
+            sessions.forEach(s => {
+                subjMap[s.subject] = (subjMap[s.subject] || 0) + xpFor(s.duration);
+            });
+            const subjLabels = Object.keys(subjMap);
+            const subjData = Object.values(subjMap);
+
+            const lLabels = [],
+                lData = [];
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                lLabels.push(d.toLocaleDateString('en', {
+                    month: 'short',
+                    day: 'numeric'
+                }));
+                lData.push(0);
+            }
+            sessions.forEach(s => {
+                lData[lData.length - 1] += xpFor(s.duration);
+            });
+
+            if (lc) lc.destroy();
+            lc = new Chart(document.getElementById('lineChart'), {
+                type: 'line',
+                data: {
+                    labels: lLabels,
+                    datasets: [{
+                        label: 'XP',
+                        data: lData,
+                        borderColor: '#6c63ff',
+                        backgroundColor: 'rgba(108,99,255,0.07)',
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#6c63ff',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxTicksLimit: 6,
+                                font: {
+                                    size: 10
+                                },
+                                color: '#9ca3af'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#f3f4f6'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
+                                },
+                                color: '#9ca3af'
+                            }
+                        }
+                    }
+                }
+            });
+
+            const COLS = ['#6c63ff', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe'];
+            if (pc) pc.destroy();
+            pc = new Chart(document.getElementById('pieChart'), {
+                type: 'pie',
+                data: {
+                    labels: subjLabels.length ? subjLabels : ['No Data'],
+                    datasets: [{
+                        data: subjData.length ? subjData : [1],
+                        backgroundColor: COLS,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 11
+                                },
+                                padding: 8
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (bc) bc.destroy();
+            bc = new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels: subjLabels.length ? subjLabels : ['No Data'],
+                    datasets: [{
+                        label: 'XP',
+                        data: subjData.length ? subjData : [0],
+                        backgroundColor: '#6c63ff',
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11
+                                },
+                                color: '#9ca3af'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#f3f4f6'
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11
+                                },
+                                color: '#9ca3af'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function openModal() {
+            document.getElementById('modal').classList.add('open');
+            document.getElementById('i-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+        }
+
+        function saveSession() {
+            const subj = document.getElementById('i-subj').value.trim();
+            const topic = document.getElementById('i-topic').value.trim();
+            const dur = parseInt(document.getElementById('i-dur').value);
+            const date = document.getElementById('i-date').value;
+            if (!subj || !topic || !dur || !date) {
+                showToast('Please fill all fields!');
+                return;
+            }
+
+            const users = getUsers();
+            const u = users[currentUser];
+            const gained = xpFor(dur);
+
+            u.sessions.unshift({
+                subject: subj,
+                topic: topic,
+                duration: dur,
+                date: new Date(date).toLocaleDateString('en', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                })
+            });
+            u.xp = (u.xp || 0) + gained;
+            u.streak = (u.streak || 0) + 1;
+            if (u.streak > (u.longestStreak || 0)) u.longestStreak = u.streak;
+
+            const ach = u.achievements;
+            if (u.sessions.length >= 1) ach.find(a => a.name === "First Steps").unlocked = true;
+            if (dur >= 30) ach.find(a => a.name === "Marathon Runner").unlocked = true;
+            if (u.xp >= 500) ach.find(a => a.name === "XP Hunter").unlocked = true;
+            if (getLevel(u.xp) >= 2) ach.find(a => a.name === "Knowledge Seeker").unlocked = true;
+            if (getLevel(u.xp) >= 4) ach.find(a => a.name === "Sage").unlocked = true;
+            if (getLevel(u.xp) >= 5) ach.find(a => a.name === "Level Up!").unlocked = true;
+            if (u.sessions.length >= 10) ach.find(a => a.name === "Dedicated Learner").unlocked = true;
+            if (u.sessions.length >= 50) ach.find(a => a.name === "Study Master").unlocked = true;
+            if (u.streak >= 7) ach.find(a => a.name === "On Fire").unlocked = true;
+            if (u.streak >= 30) ach.find(a => a.name === "Unstoppable").unlocked = true;
+
+            saveUsers(users);
+            closeModal();
+            document.getElementById('i-subj').value = '';
+            document.getElementById('i-topic').value = '';
+            document.getElementById('i-dur').value = '';
+            showToast(`+${gained} XP earned! 🎉`);
+            render();
+        }
+
+        function doLogout() {
+            try {
+                var users = getUsers();
+                var u = users[currentUser];
+                if (u) {
+                    var allXP = Object.values(users).map(function(usr) {
+                        return usr.xp || usr.points || 0;
+                    }).sort(function(a, b) {
+                        return b - a;
+                    });
+                    var xpVal = u.xp || u.points || 0;
+                    var pos = allXP.indexOf(xpVal);
+                    localStorage.setItem('logoutSnapshot', JSON.stringify({
+                        xp: xpVal,
+                        streak: u.streak || 0,
+                        rank: '#' + (pos >= 0 ? pos + 1 : 1)
+                    }));
+                }
+            } catch (e) {}
+            localStorage.removeItem('currentUser');
+            window.location.href = 'logout.html';
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        render();
+    </script>
+</body>
+
+</html>
